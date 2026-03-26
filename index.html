@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC7 VTT - Kỉ Niệm</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* THIẾT LẬP CHUNG */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body {
+            background-color: #fdf6f0;
+            transition: background 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* NÚT CHUYỂN ĐỔI GIAO DIỆN */
+        .view-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: #d14d72;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(209, 77, 114, 0.4);
+            transition: 0.3s;
+        }
+        .view-toggle:hover { transform: scale(1.05); background: #b03d5d; }
+
+        #main-wrapper {
+            width: 100%;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body.mobile-view { background-color: #333; padding: 40px 0; }
+
+        body.mobile-view #main-wrapper {
+            width: 375px; 
+            height: 700px; 
+            margin: 0 auto;
+            border: 12px solid #1a1a1a;
+            border-radius: 40px;
+            overflow: hidden; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .scroll-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            background: #fdf6f0;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        nav a { text-decoration: none; color: #d14d72; font-weight: bold; font-size: 0.9rem; }
+
+        section {
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 80vh;
+        }
+
+        /* --- PHẦN LỜI MỞ ĐẦU CÓ ẢNH NỀN --- */
+        #trang-chu { 
+            /* Thay đổi URL ảnh bên dưới */
+            background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75)), 
+                        url('anh0.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: scroll;
+            padding-top: 100px; 
+        }
+
+        h1 { font-size: 2.2rem; color: #d14d72; margin-bottom: 15px; }
+
+        .social-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 25px; }
+        .social-btn {
+            text-decoration: none; padding: 10px 22px; border-radius: 30px;
+            color: white; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .fb { background: #1877F2; }
+        .tt { background: #000; }
+        .insta { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px; width: 100%; max-width: 1000px; margin-top: 30px;
+        }
+        .memory-card {
+            background: white; padding: 15px; border-radius: 20px;
+            border: 2px dashed #ffabab;
+        }
+        .memory-card img, .memory-card video {
+            width: 100%; height: 200px; object-fit: cover; border-radius: 15px; margin-bottom: 10px;
+        }
+
+        .btn-see-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            padding: 15px 35px;
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            transition: 0.3s;
+        }
+        .btn-see-more:hover {
+            background: #e64a19;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.6);
+        }
+
+        .wishes-container {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-random-wish, .btn-show-photo {
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-random-wish {
+            background: #d14d72;
+            color: white;
+            box-shadow: 0 4px 15px rgba(209, 77, 114, 0.3);
+        }
+        .btn-random-wish:hover { background: #b03d5d; transform: translateY(-2px); }
+
+        .btn-show-photo {
+            background: #4A90E2;
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+        }
+        .btn-show-photo:hover { background: #357ABD; transform: translateY(-2px); }
+
+        .wish-display {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            border-left: 8px solid #d14d72;
+            min-height: 100px;
+            width: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: 0.5s;
+        }
+
+        #photo-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            cursor: zoom-out;
+        }
+        #photo-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px; right: 30px;
+            color: white; font-size: 40px;
+            cursor: pointer; font-weight: bold;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="view-toggle" onclick="toggleView()">
+        <i id="view-icon" class="fas fa-mobile-alt"></i>
+        <span id="view-text">Bản điện thoại</span>
+    </button>
+
+    <div id="photo-overlay" onclick="closePhoto()">
+        <span class="close-btn">&times;</span>
+        <img id="full-photo" src="anh149.jpeg" alt="Kỉ niệm đặc biệt">
+    </div>
+
+    <div id="main-wrapper">
+        <div class="scroll-container">
+            <nav>
+                <a href="#trang-chu">Giới thiệu</a>
+                <a href="#ki-niem">Kỉ niệm</a>
+                <a href="#mon-qua">Món quà</a>
+            </nav>
+
+            <section id="trang-chu">
+                <h1>LỜI MỞ ĐẦU</h1>
+                <p style="white-space: pre-line; text-align: justify; max-width: 800px; line-height: 1.6; font-weight: 500; color: #333;">
+                    Ba năm – một hành trình không quá dài của cuộc đời, nhưng lại đủ để trở thành cả một bầu trời ký ức.
+
+                    Chúng ta đã cùng nhau bước vào ngôi trường này với những bỡ ngỡ, những cái tên còn xa lạ, những nụ cười còn ngại ngùng. Vậy mà chẳng biết từ khi nào, lớp học ấy đã trở thành một mái nhà, nơi mỗi buổi sáng đến trường không chỉ là học tập, mà còn là gặp lại những gương mặt thân quen, những tiếng cười giòn tan và cả những câu chuyện không bao giờ kể hết.
+
+                    Ba năm trôi qua, chúng ta đã cùng nhau trải qua biết bao điều: những giờ học tưởng chừng dài vô tận, những lần kiểm tra đầy lo lắng, những buổi sinh hoạt rộn ràng tiếng cười, và cả những khoảnh khắc lặng im khi ai đó sắp phải nói lời chia xa. Mỗi kỷ niệm, dù nhỏ bé, đều góp phần dệt nên một thanh xuân thật đẹp – nơi có thầy cô tận tâm, có bạn bè chân thành và có chính chúng ta của những ngày vô tư nhất.
+
+                    Trang web này không chỉ là nơi lưu giữ những bức ảnh kỷ yếu, mà còn là chiếc hộp ký ức, nơi từng ánh mắt, nụ cười, cái ôm và cả những giọt nước mắt đều được cất giữ nguyên vẹn. Để rồi một ngày nào đó, khi chúng ta vô tình nhìn lại, sẽ nhận ra rằng: hóa ra, chúng ta đã từng có một thời thanh xuân rực rỡ đến thế.
+
+                    Cảm ơn vì đã gặp nhau trong những năm tháng đẹp nhất.
+                    Cảm ơn vì đã cùng nhau viết nên một câu chuyện không thể nào quên.
+                    Và dù sau này mỗi người một con đường, mong rằng ký ức về lớp học này… sẽ mãi là nơi để ta muốn quay về.
+
+                    *Bởi vì trên hành trình trưởng thành, điều quý giá nhất không phải là ta đi được bao xa, mà là đã có những ai cùng ta đi qua một đoạn đường.*
+                </p>
+                
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=61551558282945" target="_blank" class="social-btn fb"><i class="fab fa-facebook-f"></i> Facebook</a>
+                    <a href="https://www.tiktok.com/@tuiminhlaabc7vttk25" target="_blank" class="social-btn tt"><i class="fab fa-tiktok"></i> TikTok</a>
+                    <a href="https://www.instagram.com/_abcseven._?igsh=MXFpaXljbGRrOXBrNw==" target="_blank" class="social-btn insta"><i class="fab fa-instagram"></i> Instagram</a>
+                </div>
+            </section>
+
+            <section id="ki-niem">
+                <h1>Kỉ niệm của chúng ta</h1>
+                <div class="gallery">
+                    <div class="memory-card"><img src="anh1.jpg" alt="Ảnh 1"><h3>Ngày đầu gặp gỡ</h3></div>
+                    <div class="memory-card"><img src="anh2.jpg" alt="Ảnh 2"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh3.jpg" alt="Ảnh 3"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh4.jpg" alt="Ảnh 4"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh5.jpg" alt="Ảnh 5"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh6.jpg" alt="Ảnh 6"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh7.jpg" alt="Ảnh 7"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh8.jpg" alt="Ảnh 8"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh9.jpg" alt="Ảnh 9"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh10.jpg" alt="Ảnh 10"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh11.jpg" alt="Ảnh 11"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    <div class="memory-card"><img src="anh12.jpg" alt="Ảnh 12"><h3>Khoảnh khắc ý nghĩa</h3></div>
+                    
+                    <div class="memory-card"><video controls><source src="video1.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                    <div class="memory-card"><video controls><source src="video2.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                    <div class="memory-card"><video controls><source src="video3.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                    <div class="memory-card"><video controls><source src="video4.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                    <div class="memory-card"><video controls><source src="video5.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                    <div class="memory-card"><video controls><source src="video6.mp4" type="video/mp4"></video><h3>Video hành trình</h3></div>
+                </div>
+
+                <a href="https://drive.google.com/drive/u/1/folders/17XG8-KJfJ9N1B4l0Hl4NCQxw-0tigErT" target="_blank" class="btn-see-more">
+                    <i class="fas fa-external-link-alt"></i> Xem thêm
+                </a>
+            </section>
+
+            <section id="mon-qua">
+                <h1>Món quà nho nhỏ</h1>
+                
+                <div class="wishes-container">
+                    <button class="btn-random-wish" onclick="getRandomWish()">
+                        <i class="fas fa-magic"></i> Nhận lời chúc ngẫu nhiên
+                    </button>
+
+                    <button class="btn-show-photo" onclick="openPhoto()">
+                        <i class="fas fa-image"></i> Món quà to bự
+                    </button>
+
+                    <div class="wish-display" id="wish-box">
+                        <p id="wish-text"></p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 50px; color: #888; font-size: 0.8rem;">Made BY ANONYMOUS TEAM IN CLASS C7 VTT</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function toggleView() {
+            const body = document.body;
+            const icon = document.getElementById('view-icon');
+            const text = document.getElementById('view-text');
+            body.classList.toggle('mobile-view');
+            if (body.classList.contains('mobile-view')) {
+                icon.className = 'fas fa-desktop';
+                text.innerText = 'Bản máy tính';
+            } else {
+                icon.className = 'fas fa-mobile-alt';
+                text.innerText = 'Bản điện thoại';
+            }
+        }
+
+        function openPhoto() { document.getElementById('photo-overlay').style.display = 'flex'; }
+        function closePhoto() { document.getElementById('photo-overlay').style.display = 'none'; }
+
+        const wishes = [
+            "🌟 Chúc ABC7 VTT luôn giữ vững ngọn lửa nhiệt huyết và mãi đoàn kết bên nhau!",
+            "🔥 Chúc nhóm chúng ta sẽ gặt hái được nhiều thành công rực rỡ trong tương lai!",
+            "❤️ Mỗi thành viên là một mảnh ghép vô giá, chúc các bạn luôn hạnh phúc và tỏa sáng!",
+            "🚀 Hành trình của chúng ta chỉ mới bắt đầu, chúc ABC7 VTT luôn tiến xa hơn nữa!",
+            "🌈 Chúc những kỉ niệm của chúng ta mãi là động lực để cùng nhau vượt qua mọi khó khăn!",
+            "🌻 Chúc các bạn luôn giữ được nụ cười trên môi như những ngày đầu chúng ta gặp gỡ!",
+            "Mong tất cả đều chạm tới ước mơ của mình!",
+            "Chúc các bạn thi thật tốt và đạt kết quả như mong muốn!",
+            "Mong mọi nỗ lực của các bạn đều được đền đáp xứng đáng!",
+            "Chúc các sĩ tử luôn tự tin và bình tĩnh trong phòng thi!",
+            "Chúc kỳ thi diễn ra suôn sẻ, thuận lợi cho tất cả mọi người!",
+            "Mong các bạn giữ sức khỏe thật tốt trong mùa thi!",
+            "Chúc các bạn đạt điểm cao và đậu vào nguyện vọng mơ ước!",
+            "Chúc mọi người luôn vững vàng và không bị áp lực!",
+            "Mong các bạn làm bài thật trơn tru và chính xác!",
+            "Chúc tất cả đều gặp đề trúng tủ!",
+            "Mong các bạn luôn giữ tinh thần lạc quan!",
+            "Chúc các sĩ tử thi đâu thắng đó!",
+            "Mong mọi cố gắng đều mang lại thành công!",
+            "Chúc các bạn học tốt, thi tốt và đạt thành tích cao!",
+            "Mong các bạn luôn đủ năng lượng để ôn tập hiệu quả!",
+            "Chúc kỳ thi trở thành bước đệm cho tương lai tươi sáng!",
+            "Mong các bạn luôn tin vào bản thân mình!",
+            "Chúc mọi người không lo lắng, cứ bình tĩnh làm bài!",
+            "Mong các bạn đạt kết quả vượt ngoài mong đợi!",
+            "Chúc tất cả đều may mắn trong từng môn thi!",
+            "Mong các bạn giữ được phong độ tốt nhất!",
+            "Chúc các bạn vượt qua kỳ thi một cách xuất sắc!",
+            "Mong các bạn luôn mạnh mẽ và kiên trì đến cuối cùng!",
+            "Chúc các sĩ tử đạt được mục tiêu đã đề ra!",
+            "Mong các bạn thi xong thật nhẹ nhõm và vui vẻ!",
+            "Chúc tất cả đều có một kỳ thi thành công rực rỡ!",
+            "Mong các bạn luôn khỏe mạnh cả thể chất lẫn tinh thần!",
+            "Chúc mọi người gặt hái được kết quả xứng đáng!",
+            "Mong các bạn luôn giữ sự tập trung cao độ!",
+            "Chúc kỳ thi trở thành kỷ niệm đẹp trong hành trình học tập!"
+        ];
+        
+        function getRandomWish() {
+            const wishBox = document.getElementById('wish-box');
+            const wishText = document.getElementById('wish-text');
+            wishBox.style.display = 'flex';
+            const randomIndex = Math.floor(Math.random() * wishes.length);
+            const selectedWish = wishes[randomIndex];
+            wishBox.classList.remove('fade-in');
+            void wishBox.offsetWidth; 
+            wishBox.classList.add('fade-in');
+            wishText.innerHTML = selectedWish;
+        }
+    </script>
+</body>
+</html>
